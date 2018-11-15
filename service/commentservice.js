@@ -1,23 +1,38 @@
+import { showSuccess, showModel } from '../utils/util.js'
+import { service } from '../config.js'
 class Comment{
-  constructor(){
-
+  constructor() {
+    this.app = getApp()
+    this.host = service.host
   }
 
   createComment(obj, callback){
-    var result = {
-      id: 1,
-      content: obj.content || 'test',
-      articleId: obj.articleId,
-      userId: 123,
-      userName: 'admin',
-      replyId: obj.replyId,
-      replyName: '官宣',
-      articleId: obj.articleId,
-      replyCommentId: obj.replyCommentId
-    }
-    if('function'===typeof(callback)){
-      callback(result)
-    }
+    wx.showLoading({
+      title: '加载中',
+    })
+    wx.request({
+      header: {
+        'Authorization': this.app.globalData.access_token
+      },
+      url: this.host + '/api/v1/comments',
+      method: 'POST',
+      data: obj,
+      success: (result) => {
+        if (result.statusCode == 200 || result.statusCode == 201) {
+          if ('function' === typeof (callback)) {
+            callback(result.data)
+          }
+        } else {
+          showModel('get failure', 'internet error')
+        }
+      },
+      fail: (e) => {
+        showModel('get failure', 'system error')
+      },
+      complete: () => {
+        wx.hideLoading()
+      }
+    })
   }
 
   getCommentsByArticleId(articleId, callback){

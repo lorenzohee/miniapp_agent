@@ -18,7 +18,7 @@
         <view class='wx-dialog-title'>发表评论</view>
         <form bindsubmit="formSubmit" bindreset="formReset">
           <view class='wx-dialog-content'>
-            <textarea name='content' class="weui-textarea" placeholder="请输入评论内容" style="height: 3.3em; text-align:left"></textarea>
+            <textarea name='body' class="weui-textarea" placeholder="请输入评论内容" style="height: 3.3em; text-align:left"></textarea>
           </view>
           <view class='wx-dialog-footer'>
             <button class='wx-dialog-btn' formType="reset">取消</button>

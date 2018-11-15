@@ -1,21 +1,17 @@
 // pages/myinfo/personinfo.js
-
+var UserService = require('../../service/userservice.js')
 var app = getApp();
 Page({
 
   /**
    * 页面的初始数据
    */
-  data: {
-    countries: ["male", "female"],
-    countryIndex: 0,
-  },
+  data: { },
 
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
-
   },
 
   /**
@@ -29,7 +25,7 @@ Page({
    * 生命周期函数--监听页面显示
    */
   onShow: function () {
-
+    this.getCurrentUserInfo()
   },
 
   /**
@@ -67,12 +63,11 @@ Page({
 
   },
 
-  bindCountryChange: function(e){
-    this.setData({
-      countryIndex: e.detail.value
+  getCurrentUserInfo(){
+    let userService = new UserService();
+    userService.getMyInfo((res)=>{
+      this.setData({user: res})
     })
-    wx.showToast({
-      title: 'change success',
-    })
-  }
+  },
+
 })

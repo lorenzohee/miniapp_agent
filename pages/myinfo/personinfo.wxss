@@ -11,6 +11,12 @@
   border-radius: 50%;
   overflow: hidden;
 }
+.user_img .image image{
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  overflow: hidden;
+}
 
 .user_body view{
   margin: 5px 10px;
@@ -28,4 +34,12 @@
   border-radius: 3px;
   margin: 5px;
   padding: 2px 5px;
+}
+
+.weui-cell__ft.weui-cell__ft_in-access{
+  max-width: 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-height: 10px;
 }

@@ -99,10 +99,10 @@ Page({
     var that = this,
       id = e.currentTarget.dataset.demandid;
     var demandService = new DemandService();
-    demandService.starDemand(id, 3, function (result) {
+    demandService.starDemand(id, function (result) {
       that.data.demands.forEach(function (v, i) {
-        if (v.id == id) {
-          v.isFavorite = true
+        if (v.id == result.favorable_id) {
+          v.favorite_id = result.id
           return false
         }
       })
@@ -117,21 +117,35 @@ Page({
   //star Demand
   unstarDemand: function (e) {
     var that = this,
-      id = e.currentTarget.dataset.demandid;
+      id = e.currentTarget.dataset.demandid,
+      favorable_id = e.currentTarget.dataset.favorableid;
     var demandService = new DemandService();
-    demandService.starDemand(id, 3, function (result) {
-      that.data.demands.forEach(function (v, i) {
-        if (v.id == id) {
-          v.isFavorite = false
-          return false
+    wx.showModal({
+      title: '确认',
+      content: '确认要取消收藏吗？',
+      success: (res) => {
+        if (res.confirm) {
+          demandService.deleteFavorite(favorable_id, function (result) {
+            that.data.demands.forEach(function (v, i) {
+              if (v.id == id) {
+                v.favorite_id = null
+                return false
+              }
+            })
+            wx.showToast({
+              title: '取消成功'
+            })
+            that.setData({
+              demands: that.data.demands
+            })
+          })
+        } else if (res.cancel) {
+          return;
         }
-      })
-      wx.showToast({
-        title: '取消成功'
-      })
-      that.setData({
-        demands: that.data.demands
-      })
+      },
+      fail: ()=>{
+        return false;
+      }
     })
   },
 

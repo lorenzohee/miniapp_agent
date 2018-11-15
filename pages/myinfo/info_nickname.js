@@ -1,20 +1,18 @@
 // client/pages/myinfo/info_nickname.js
+var UserService = require('../../service/userservice.js')
+var app = getApp();
 Page({
 
   /**
    * 页面的初始数据
    */
-  data: {
-    user: {
-      nickname: '凉茶'
-    }
-  },
+  data: { },
 
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
-
+    this.getCurrentUserInfo()
   },
 
   /**
@@ -66,12 +64,29 @@ Page({
 
   },
 
+  getCurrentUserInfo() {
+    let userService = new UserService();
+    userService.getMyInfo((res) => {
+      this.setData({ user: res })
+    })
+  },
+
   /**
    * form submit
    */
-  formSubmit: function(){
-    wx.showToast({
-      title: '修改成功',
-    });
+  formSubmit: function(e){
+    let userService = new UserService();
+    userService.changeUserInfo({ id: this.data.user.id, name: e.detail.value.name}, (res)=>{
+      wx.showToast({
+        title: '修改成功',
+        icon: 'success',
+        duration: 2000,
+        success: () => {
+          wx.navigateBack({
+            url: '/page/myinfo/personinfo'
+          })
+        }
+      });
+    })
   }
 })

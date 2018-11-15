@@ -12,7 +12,7 @@ var config = {
         host,
 
         // 登录地址，用于建立会话
-        loginUrl: `${host}/weapp/login`,
+        loginUrl: `http://10.135.106.152:9999/api/v1/authen_miniapp`,
 
         // 测试的请求地址，用于测试会话
         requestUrl: `${host}/weapp/user`,

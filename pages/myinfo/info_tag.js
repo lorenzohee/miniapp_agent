@@ -6,16 +6,15 @@ Page({
   /**
    * 页面的初始数据
    */
-  data: {
-
-  },
+  data: { },
 
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
-    this.getTagGroup()
-    this.getUserTags()
+    this.getCurrentUserInfo()
+    this.getTechArea()
+    this.getInterestArea()
   },
 
   /**
@@ -66,57 +65,102 @@ Page({
 
   },
 
-  getTagGroup(){
-    var that = this;
-    var userService = new UserService()
-    userService.getTagGroup(res=>{
-      this.setData({tagGroups: res})
+  getCurrentUserInfo() {
+    let userService = new UserService();
+    userService.getMyInfo((res) => {
+      this.setData({ user: res })
     })
-    if(this.data.tags!=undefined && this.data.tags.length>0){
-      this.initialTags()
-    }
   },
 
-  getUserTags(){
+  getTechArea() {
+    var that = this;
     var userService = new UserService()
-    userService.getUserTags('id', res=>{
-      this.setData({tags: res})
+    userService.getCfgList('system', 'preference_cn', res => {
+      that.setData({
+        techArea: res
+      });
+      if (undefined != this.data.interest && this.data.interest.length > 0 && undefined != this.data.user){
+        this.initialTags()
+      }
     })
-    if (this.data.tagGroups != undefined && this.data.tagGroups.length > 0) {
-      this.initialTags()
-    }
+  },
+
+  getInterestArea() {
+    var that = this;
+    var userService = new UserService()
+    userService.getCfgList('system', 'interest_tag_cn', res => {
+      that.setData({
+        interest: res
+      });
+      if (undefined != this.data.techArea && this.data.techArea.length > 0 && undefined != this.data.user){
+        this.initialTags()
+      }
+    })
   },
 
   initialTags(){
-    this.data.tagGroups.forEach((v, i)=>{
-      v.tags.forEach((ele, index)=>{
-        ele.selected=this.data.tags.includes(ele.title)
-      })
+    let userTech = this.data.user.subscribe_list;
+    let userInterest = this.data.user.interest_list;
+    this.data.techArea.forEach((v, i) => {
+      v.selected = userTech.includes(v.valu)
     })
-    this.setData({ tagGroups: this.data.tagGroups})
+    this.data.interest.forEach((v, i) => {
+      v.selected = userInterest.includes(v.valu)
+    })
+    this.setData({ techArea: this.data.techArea, interest: this.data.interest})
   },
 
-  triggerTag(e){
-    var tag = e.currentTarget.dataset.text;
+  triggerTechTag(e) {
+    var tag = e.currentTarget.dataset.id;
     var userService = new UserService();
-    if(this.data.tags.includes(tag)){
-      userService.deleteUserTag(tag, (res)=>{
-        this.data.tags.splice(this.data.tags.indexOf(res), 1);
-        this.setData({tags: this.data.tags})
-        this.initialTags()
-        wx.showToast({
-          title: 'delete success',
-        })
-      })
+    let preTag = null;
+    this.data.techArea.forEach((v, i)=>{
+      if(v.id == tag){
+        preTag = v;
+        return;
+      }
+    })
+    let toastTitle = ''
+    if(preTag.selected){
+      this.data.user.subscribe_list.splice(this.data.user.subscribe_list.indexOf(preTag.valu), 1);
+      toastTitle = 'delete success'
     } else {
-      userService.addUserTag(tag, (res) => {
-        this.data.tags.push(res);
-        this.setData({ tags: this.data.tags })
-        this.initialTags()
-        wx.showToast({
-          title: 'add success',
-        })
-      })
+      this.data.user.subscribe_list = this.data.user.subscribe_list.concat([preTag.valu])
+      toastTitle = 'add success'
     }
+    userService.changeUserInfo({ id: this.data.user.id, subscribe_list: this.data.user.subscribe_list }, res => {
+      this.setData({ user: res })
+      this.initialTags()
+      wx.showToast({
+        title: toastTitle,
+      })
+    })
+  },
+
+  triggerInterestTag(e) {
+    var tag = e.currentTarget.dataset.id;
+    var userService = new UserService();
+    let preTag = null;
+    this.data.interest.forEach((v, i) => {
+      if (v.id == tag) {
+        preTag = v;
+        return;
+      }
+    })
+    let toastTitle = ''
+    if (preTag.selected) {
+      this.data.user.interest_list.splice(this.data.user.interest_list.indexOf(preTag.valu), 1);
+      toastTitle = 'delete success'
+    } else {
+      this.data.user.interest_list = this.data.user.interest_list.concat([preTag.valu])
+      toastTitle = 'add success'
+    }
+    userService.changeUserInfo({ id: this.data.user.id, interest_list: this.data.user.interest_list}, res => {
+      this.setData({ user: res })
+      this.initialTags()
+      wx.showToast({
+        title: toastTitle,
+      })
+    })
   }
 })

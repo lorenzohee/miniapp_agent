@@ -35,7 +35,7 @@ function getWxLoginResult (cb) {
 
 const noop = function noop() {}
 const defaultOptions = {
-    method: 'GET',
+    method: 'POST',
     success: noop,
     fail: noop,
     loginUrl: null,
@@ -72,27 +72,29 @@ function login (opts) {
             [constants.WX_HEADER_IV]: loginResult.iv
         }
 
+        const postData = {
+          code: loginResult.code,
+          user_info: loginResult.userInfo,
+          appid: 'wx64c6c3ff48d1b425'
+        }
+
         // 请求服务器登录地址，获得会话信息
         wx.request({
             url: opts.loginUrl,
-            header: header,
             method: opts.method,
+            data: postData,
             success (result) {
                 const data = result.data;
-
-                if (!data || data.code !== 0 || !data.data) {
-                    return opts.fail(new Error(`响应错误，${JSON.stringify(data)}`))
+                if(result.statusCode==500){
+                  return opts.fail(new Error(`服务器异常，请重试`))
                 }
-
-                const res = data.data
-
-                if (!res || !res.access_token) {
-                    return opts.fail(new Error(`登录失败(${data.error})：${data.message}`))
-                }
+              if (!data || !data.token || data.error) {
+                  return opts.fail(new Error(`响应错误，${data.error || JSON.stringify(data)}`))
+              }
 
                 // 成功地响应会话信息
-                Session.set(res.access_token)
-                opts.success(res.access_token)
+              Session.set(data.token)
+              opts.success(data.token)
             },
             fail (err) {
                 console.error('登录失败，可能是网络错误或者服务器发生异常')
@@ -128,28 +130,29 @@ function loginWithCode (opts) {
             const header = {
                 [constants.WX_HEADER_CODE]: loginResult.code
             }
-    
+
+            const postData = {
+              code: loginResult.code,
+              appid: 'wx64c6c3ff48d1b425'
+            }
             // 请求服务器登录地址，获得会话信息
             wx.request({
                 url: opts.loginUrl,
-                header: header,
+                data: postData,
                 method: opts.method,
                 success (result) {
                     const data = result.data;
-    
-                    if (!data || data.code !== 0 || !data.data) {
-                        return opts.fail(new Error(`用户未登录过，请先使用 login() 登录`))
-                    }
-    
-                    const res = data.data
-    
-                    if (!res || !res.access_token) {
-                        return opts.fail(new Error(`登录失败(${data.error})：${data.message}`))
-                    }
+
+                  if (result.statusCode == 500) {
+                    return opts.fail(new Error(`服务器异常，请重试`))
+                  }
+                  if (!data || !data.token || data.error) {
+                    return opts.fail(new Error(`响应错误，${data.error || JSON.stringify(data)}`))
+                  }
     
                     // 成功地响应会话信息
-                    Session.set(res.access_token)
-                    opts.success(res.access_token)
+                    Session.set(data.token)
+                    opts.success(data.token)
                 },
                 fail (err) {
                     console.error('登录失败，可能是网络错误或者服务器发生异常')

@@ -1,7 +1,13 @@
 <!--client/pages/myinfo/info_tag.wxml-->
-<view class='main' wx:for="{{tagGroups}}">
-    <text>{{item.title}}</text>
+<view class='main'>
+    <text>Tech Area</text>
     <view class='techarea tags'>
-      <view wx:for="{{item.tags}}" wx:for-item="tag" class='tag {{tag.selected? "selected": "123"}}' bindtap="triggerTag" data-text="{{tag.title}}">{{tag.title}}</view>
+      <view wx:for="{{techArea}}" wx:for-item="tag" class='tag {{tag.selected? "selected": ""}}' bindtap="triggerTechTag" data-id="{{tag.id}}">{{tag.valu}}</view>
+    </view>
+</view>
+<view class='main'>
+    <text>Interest</text>
+    <view class='techarea tags'>
+      <view wx:for="{{interest}}" wx:for-item="tag" class='tag {{tag.selected? "selected": ""}}' bindtap="triggerInterestTag" data-id="{{tag.id}}">{{tag.valu}}</view>
     </view>
 </view>

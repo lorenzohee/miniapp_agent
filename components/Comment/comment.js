@@ -81,17 +81,18 @@ Component({
     formSubmit: function (e) {
       var that = this;
       var formData = e.detail.value;
-      formData.articleId = this.data.articleId;
-      formData.replyId = this.data.replyId;
-      formData.replyCommentId = this.data.replyCommentId;
+      formData.commentable_id = this.data.articleId;
+      formData.to = this.data.replyId;
+      formData.parent_comment_id = this.data.replyCommentId;
+      formData.commentable_type = 'Blog';
       var commentService = new CommentService();
       commentService.createComment(formData, function(result){
-        if (undefined === result.replyCommentId || '' === result.replyCommentId){
+        if (undefined === result.parent_comment_id || null === result.parent_comment_id || '' === result.parent_comment_id){
           that.data.comments = [result].concat(that.data.comments || [])
         }else{
           that.data.comments.forEach(function(v, i){
-            if (v.id == result.replyCommentId){
-              v.children = [result].concat(v.children || []);
+            if (v.id == result.parent_comment_id){
+              v.child = (v.child || []).concat([result]);
               return false;
             }
           })

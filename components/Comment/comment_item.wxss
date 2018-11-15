@@ -28,3 +28,7 @@
   color: blue;
   font-size: 12px;
 }
+
+.user_name{
+  color: #555;
+}

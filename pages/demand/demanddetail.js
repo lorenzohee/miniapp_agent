@@ -95,8 +95,8 @@ Page({
     var that = this,
       id = e.currentTarget.dataset.demandid;
     var demandService = new DemandService();
-    demandService.starDemand(id, 3, function (result) {
-      that.data.demand.isFavorite = true;
+    demandService.starDemand(id, function (result) {
+      that.data.demand.favorite_id = result.id
       wx.showToast({
         title: '收藏成功'
       })
@@ -108,16 +108,30 @@ Page({
   //star Demand
   unstarDemand: function (e) {
     var that = this,
-      id = e.currentTarget.dataset.demandid;
+      id = e.currentTarget.dataset.demandid,
+      favorable_id = e.currentTarget.dataset.favorableid;
     var demandService = new DemandService();
-    demandService.starDemand(id, 3, function (result) {
-      that.data.demand.isFavorite = false;
-      wx.showToast({
-        title: '取消成功'
-      })
-      that.setData({
-        demand: that.data.demand
-      })
+    wx.showModal({
+      title: '确认',
+      content: '确认要取消收藏吗？',
+      success: (res) => {
+        if (res.confirm) {
+          demandService.deleteFavorite(favorable_id, function (result) {
+            that.data.demand.favorite_id = null
+            wx.showToast({
+              title: '取消成功'
+            })
+            that.setData({
+              demand: that.data.demand
+            })
+          })
+        } else if (res.cancel) {
+          return;
+        }
+      },
+      fail: () => {
+        return false;
+      }
     })
   },
 })
