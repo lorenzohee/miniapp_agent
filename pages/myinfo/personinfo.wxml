@@ -2,7 +2,7 @@
 <view class='page'>
   <view class='user_img'>
     <view class='image'>
-      <image src='{{user.avatar_url}}'></image>
+      <image src='{{user.avatar_url}}' bindtap='changeAvatar'></image>
     </view>
   </view>
   <view class="weui-cells weui-cells_after-title">

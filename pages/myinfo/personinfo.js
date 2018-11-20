@@ -1,4 +1,5 @@
 // pages/myinfo/personinfo.js
+import { service } from '../../config.js'
 var UserService = require('../../service/userservice.js')
 var app = getApp();
 Page({
@@ -12,6 +13,7 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
+    this.host = service.host
   },
 
   /**
@@ -69,5 +71,40 @@ Page({
       this.setData({user: res})
     })
   },
+
+  changeAvatar(){
+    let userService = new UserService();
+    wx.chooseImage({
+      count: 1,
+      success: (res)=>{
+        const tempFilePaths = res.tempFilePaths[0];
+        wx.showLoading({
+          title: 'uploading',
+        })
+        wx.uploadFile({
+          url: this.host + '/api/v1/users/' + this.data.user.id +'/update_avater',
+          filePath: tempFilePaths,
+          name: 'avatar',
+          header: {
+            'Authorization': app.globalData.access_token
+          },
+          success: (res)=>{
+            wx.hideLoading()
+            this.getCurrentUserInfo()
+            wx.showToast({
+              title: 'upload success',
+            })
+          },
+          fail: ()=>{
+            wx.hideLoading();
+            wx.showToast({
+              title: 'upload fail, please retry.',
+            })
+          }
+        })
+      },
+      fail: (e)=>{ }
+    })
+  }
 
 })
